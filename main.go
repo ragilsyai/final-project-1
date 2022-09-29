@@ -2,10 +2,12 @@ package main
 
 import (
 	"final_project_1_gin/models"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/swag/example/basic/docs"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 var todos = map[int]*models.Todos{}
@@ -73,11 +75,15 @@ func deleteTodos(c *gin.Context) {
 
 func main() {
 	r := gin.New()
-
-	r.GET("/todos", getAllTodos)
-	r.GET("/todos/:id", getTodoById)
-	r.POST("/create-todos", createTodos)
-	r.PUT("/update-todos/:id", updateTodo)
-	r.DELETE("/delete-todos/:id", deleteTodos)
-	r.Run(":9000")
+	docs.SwaggerInfo.BasePath = "/"
+	routers := r.Group("/todos")
+	{
+		routers.GET("/todos", getAllTodos)
+		routers.GET("/todos/:id", getTodoById)
+		routers.POST("/create-todos", createTodos)
+		routers.PUT("/update-todos/:id", updateTodo)
+		routers.DELETE("/delete-todos/:id", deleteTodos)
+	}
+	r.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.Run(":8080")
 }
